@@ -1,57 +1,68 @@
+#include <string>
+
 #include "interp.h"
 
 
-QChartView* Dashboard::chartInit(){
+
+void Dashboard::chartInit(){
     QChart *chart = new QChart();
-    chart->setTitle("Function Graph"); 
+    // chart->setTitle("Function Graph"); 
     chart->createDefaultAxes();
     // chart->axes(Qt::Horizontal).first()->setRange(0, 20);
     // chart->axes(Qt::Vertical).first()->setRange(0, 10);
 
-    QChartView *chartView = new QChartView(chart);
+    chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
+}
 
-    return chartView;
+
+void Dashboard::formulaInit(){
+    formulaLabel = new QLabel();
 }
 
 
 
-QLabel* Dashboard::formulaInit(){
-    QLabel *formulaLabel = new QLabel();
-    return formulaLabel;
+void Dashboard::pointsTableInit(){
+    pointsTable = new QTableWidget(10, 2);
+    
+    pointsTable->horizontalHeader()->setDefaultSectionSize(60);
+    pointsTable->verticalHeader()->setDefaultSectionSize(20);
+    pointsTable->setFixedWidth(144);
+
+    QTableWidgetItem *newItem = new QTableWidgetItem("newItem");
+
+    pointsTable->setItem(1, 1, newItem);
 }
 
 
 
-QGroupBox* Dashboard::pointsViewInit(){
-    QGroupBox *groupBox = new QGroupBox("Points");
-    return groupBox;
-}
-
-
-
-QGroupBox* Dashboard::buttonGroupInit(){
-    QGroupBox *groupBox = new QGroupBox();
+void Dashboard::buttonGroupInit(){
+    buttonGroup = new QGroupBox();
     QGridLayout *layout = new QGridLayout;
 
 
-    QPushButton *addBtn = new QPushButton("Add");
+    QPushButton *addRowBtn = new QPushButton("Add");
+    QPushButton *clearPointsBtn = new QPushButton("Clear");
+    QPushButton *demoPointsBtn = new QPushButton("Demo");
+    // QPushButton *exitBtn = new QPushButton("Exit");
+
+    connect(addRowBtn, &QPushButton::clicked, this, &Dashboard::addRow);
+    connect(clearPointsBtn, &QPushButton::clicked, this, &Dashboard::clearPoints);
+    connect(demoPointsBtn, &QPushButton::clicked, this, &Dashboard::demoPoints);
+    // connect(exitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
 
 
-    connect(addBtn, &QPushButton::clicked, this, &Dashboard::addPoint);
+    layout->addWidget(addRowBtn, 0, 0);
+    layout->addWidget(demoPointsBtn, 0, 1);
+    layout->addWidget(clearPointsBtn, 1, 0);
 
-
-    layout->addWidget(addBtn, 0, 0);
-    groupBox->setLayout(layout);
-
-    return groupBox;
+    buttonGroup->setLayout(layout);
 }
 
 
 
-QGroupBox* Dashboard::radioGroupInit(){
-    QGroupBox *groupBox = new QGroupBox("Interpolation Methods");
-    return groupBox;
+void Dashboard::radioGroupInit(){
+    radioGroup = new QGroupBox("Interpolation Methods");
 }
 
 
@@ -59,41 +70,31 @@ QGroupBox* Dashboard::radioGroupInit(){
 Dashboard::Dashboard(QWidget *parent) : QWidget(parent) {
     QGridLayout *layout = new QGridLayout(this);
 
-    QChartView *chart = chartInit();
-    QLabel *formulaLabel = formulaInit();
-    QGroupBox *pointsView = pointsViewInit();
-    QGroupBox *buttonGroup = buttonGroupInit();
-    QGroupBox *radioGroup = radioGroupInit();
+    chartInit();
+    formulaInit();
+    pointsTableInit();
+    buttonGroupInit();
+    radioGroupInit();
 
-    layout->addWidget(chart, 0, 0);
+    layout->addWidget(chartView, 0, 0);
     layout->addWidget(formulaLabel, 1, 0);
-    layout->addWidget(pointsView, 0, 1);
+    layout->addWidget(pointsTable, 0, 1);
     layout->addWidget(buttonGroup, 1, 1);
-    layout->addWidget(radioGroup, 0, 2, 2, 1);
+    // layout->addWidget(radioGroup, 0, 2, 2, 1);
 }
 
 
-
-void Dashboard::addPoint() {
-    QMessageBox msgBox;
-    msgBox.setText("Click event test.");
-    msgBox.exec();
+void Dashboard::addRow() {
+    pointsTable->insertRow(pointsTable->rowCount());
 }
 
 
-void Dashboard::deletePoint() {
-
-
-}
-
-void Dashboard::clearPoint(){
-
+void Dashboard::clearPoints(){
 
 }
 
 
-
-void Dashboard::demoPoint(){
+void Dashboard::demoPoints(){
 
 }
 

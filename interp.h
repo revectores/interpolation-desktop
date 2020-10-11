@@ -10,6 +10,7 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QTableWidget>
 #include <QtCharts>
 
 #include <QMessageBox>
@@ -24,18 +25,23 @@ typedef struct point {
 
 class Dashboard : public QWidget {
 private:
+	QChartView* chartView;
+	QLabel* formulaLabel;
+	QTableWidget* pointsTable;
+	QGroupBox* buttonGroup;
+	QGroupBox* radioGroup;
+
 	std::vector<point> points;
 
-	QChartView* chartInit();
-	QLabel* formulaInit();
-	QGroupBox* pointsViewInit();
-	QGroupBox* buttonGroupInit();
-	QGroupBox* radioGroupInit();
+	void chartInit();
+	void formulaInit();
+	void pointsTableInit();
+	void buttonGroupInit();
+	void radioGroupInit();
 
-	void addPoint();
-	void deletePoint();
-	void clearPoint();
-	void demoPoint();
+	void addRow();
+	void clearPoints();
+	void demoPoints();
 
 public:
 	Dashboard(QWidget *parent = 0);
