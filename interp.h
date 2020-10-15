@@ -1,6 +1,3 @@
-#include <vector>
-#include <utility>
-
 #include <QApplication>
 #include <QWidget>
 #include <QGridLayout>
@@ -14,6 +11,7 @@
 #include <QtCharts>
 
 #include <QMessageBox>
+#define MAXIMUM_ROW 1000
 
 
 
@@ -31,7 +29,7 @@ private:
 	QGroupBox* buttonGroup;
 	QGroupBox* radioGroup;
 
-	std::vector<point> points;
+	point points[MAXIMUM_ROW];
 
 	void chartInit();
 	void formulaInit();
@@ -42,6 +40,11 @@ private:
 	void addRow();
 	void clearPoints();
 	void demoPoints();
+	void draw();
+
+	void cellChangeHandler();
+
+	void err(QString msg);
 
 public:
 	Dashboard(QWidget *parent = 0);
