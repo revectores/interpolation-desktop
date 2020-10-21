@@ -36,6 +36,7 @@ public:
 	Polynomial operator+ (Polynomial const &p);
 	Polynomial operator* (Monomial const &m);
 	Polynomial operator* (Polynomial const &p);
+	double evaluate (double x);
 	friend std::ostream& operator<< (std::ostream& os, const Polynomial &p);
 };
 

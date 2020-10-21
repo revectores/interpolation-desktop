@@ -22,6 +22,11 @@ private:
 	QTableWidget* pointsTable;
 	QGroupBox* buttonGroup;
 	QGroupBox* radioGroup;
+	QGroupBox* evaluateArea;
+	QLineEdit* variableLineEdit;
+	QLabel* valueLabel;
+	Polynomial poly;
+	bool has_poly;
 
 	std::vector<point> getPoints();
 	void chartInit();
@@ -29,12 +34,14 @@ private:
 	void pointsTableInit();
 	void buttonGroupInit();
 	void radioGroupInit();
+	void evaluateAreaInit();
 
 	void addRow();
 	void clearPoints();
 	void demoPoints();
 	void draw();
 	void formulate();
+	void evaluate();
 
 	void cellChangeHandler();
 

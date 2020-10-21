@@ -1,4 +1,5 @@
 #include "poly.h"
+#include "cmath"
 
 
 bool term_cmp(Monomial term1, Monomial term2){
@@ -83,6 +84,15 @@ std::ostream& operator<< (std::ostream& os, const Polynomial &p){
 }
 
 
+double Polynomial::evaluate(double x){
+	double sum = 0;
+	for (auto term_it = terms.begin(); term_it != terms.end(); term_it++){
+		sum += term_it->coef * std::pow(x, term_it->exp);
+	}
+	return sum;
+} 
+
+
 Polynomial Lagrange_interp(std::vector<point> points) {
 	Polynomial Lagrange_interp_polynomial {};
 
@@ -131,6 +141,7 @@ Polynomial Newton_interp(std::vector<point> points) {
 
 	return Newton_interp_polynomial;
 }
+
 
 
 

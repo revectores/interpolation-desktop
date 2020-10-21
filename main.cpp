@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 
 	Dashboard window;
 
-	window.resize(854, 480);
+	window.resize(1080, 550);
 	window.setWindowTitle("Click");
 	window.show();
 

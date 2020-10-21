@@ -83,8 +83,48 @@ void Dashboard::buttonGroupInit(){
 
 void Dashboard::radioGroupInit(){
     radioGroup = new QGroupBox("Interpolation Methods");
+
+    QGridLayout *layout = new QGridLayout;
+
+    QRadioButton *LagrangeRadio = new QRadioButton("&Lagrange\nInterpolation");
+    QRadioButton *NewtonRadio = new QRadioButton("&Newton's\nInterpolation");
+    QRadioButton *CubicRadio = new QRadioButton("&Cubic\nInterpolation");
+    QRadioButton *QuarticRadio = new QRadioButton("&Quartic\nInterpolation");
+
+    LagrangeRadio->setChecked(true);
+
+    layout->addWidget(LagrangeRadio, 0, 0);
+    layout->addWidget(NewtonRadio, 1, 0);
+    layout->addWidget(CubicRadio, 2, 0);
+    layout->addWidget(QuarticRadio, 3, 0);
+
+    radioGroup->setLayout(layout);
 }
 
+
+
+void Dashboard::evaluateAreaInit(){
+    evaluateArea = new QGroupBox;
+    QGridLayout *layout = new QGridLayout;
+
+    QLabel *variableLabel = new QLabel("x=");
+    variableLineEdit = new QLineEdit();
+    // variableTextInput->setFixedWidth(50);
+    // variableTextInput->setFixedHeight(20);
+    variableLabel->resize(50, 20);
+
+    valueLabel = new QLabel("f(x)=");
+
+    layout->addWidget(variableLabel, 0, 0);
+    layout->addWidget(variableLineEdit, 0, 1);
+    layout->addWidget(valueLabel, 1, 0, 2, 1);
+
+    evaluateArea->setFixedHeight(80);
+    evaluateArea->setFixedWidth(160);
+
+    evaluateArea->setLayout(layout);
+    connect(variableLineEdit, &QLineEdit::textChanged, this, &Dashboard::evaluate);
+}
 
 
 Dashboard::Dashboard(QWidget *parent) : QWidget(parent) {
@@ -95,12 +135,16 @@ Dashboard::Dashboard(QWidget *parent) : QWidget(parent) {
     pointsTableInit();
     buttonGroupInit();
     radioGroupInit();
+    evaluateAreaInit();
 
     layout->addWidget(chartView, 0, 0);
     layout->addWidget(formulaLabel, 1, 0);
     layout->addWidget(pointsTable, 0, 1);
     layout->addWidget(buttonGroup, 1, 1);
-    // layout->addWidget(radioGroup, 0, 2, 2, 1);
+    layout->addWidget(radioGroup, 0, 2);
+    layout->addWidget(evaluateArea, 1, 2);
+
+    has_poly = false;
 }
 
 
@@ -183,6 +227,8 @@ void Dashboard::formulate(){
 
     if (interp_method == 0){
         Polynomial Lagrange_interp_poly = Lagrange_interp(points);
+        poly = Lagrange_interp_poly;
+        has_poly = true;
         /*
         std::ostringstream ss;
         ss << Lagrange_interp_poly;
@@ -203,9 +249,22 @@ void Dashboard::formulate(){
             if (term_it != poly_terms.end()) polyString += " "; 
         }
         formulaLabel->setText(QString::fromStdString(polyString));
+        // formulaLabel->setText(QString::number(Lagrange_interp_poly.evaluate(0.596)));
     }
 }
 
+
+
+void Dashboard::evaluate(){
+    if (has_poly){
+        double x = variableLineEdit->text().toDouble();
+        // qDebug() << variableLineEdit->text() << " ";
+        // std::cout << v << std::endl;
+        double y = poly.evaluate(x);
+        valueLabel->setText(QString::number(y));
+    }
+
+}
 
 
 
