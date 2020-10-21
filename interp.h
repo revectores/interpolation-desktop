@@ -15,6 +15,15 @@
 #define MAXIMUM_ROW 1000
 
 
+
+typedef struct polyint_ {
+	Polynomial poly;
+	double left;
+	double right;
+} polyint;
+
+
+
 class Dashboard : public QWidget {
 private:
 	QChartView* chartView;
@@ -24,8 +33,9 @@ private:
 	QGroupBox* radioGroup;
 	QGroupBox* evaluateArea;
 	QLineEdit* variableLineEdit;
+	QRadioButton* InterpMethodRadios[5];
 	QLabel* valueLabel;
-	Polynomial poly;
+	std::vector<polyint> interp_polyints;
 	bool has_poly;
 
 	std::vector<point> getPoints();

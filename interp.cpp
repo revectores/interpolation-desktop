@@ -6,6 +6,15 @@
 #include "interp.h"
 
 
+const int LAGRANGEINDEX = 0;
+const int NEWTONINDEX = 1;
+const int LINEARINDEX = 2;
+const int QUADRATICINDEX = 3;
+const int CUBICINDEX = 4;
+const int INTERPMETHODCOUNT = 5;
+
+
+
 void Dashboard::chartInit(){
     QChart *chart = new QChart();
     // chart->setTitle("Function Graph"); 
@@ -42,13 +51,13 @@ void Dashboard::formulaInit(){
 void Dashboard::pointsTableInit(){
     pointsTable = new QTableWidget(10, 2);
     
-    pointsTable->horizontalHeader()->setDefaultSectionSize(60);
+    pointsTable->horizontalHeader()->setDefaultSectionSize(80);
     pointsTable->verticalHeader()->setDefaultSectionSize(20);
 
     pointsTable->setHorizontalHeaderItem(0, new QTableWidgetItem("x"));
     pointsTable->setHorizontalHeaderItem(1, new QTableWidgetItem("y"));
 
-    pointsTable->setFixedWidth(144);
+    pointsTable->setFixedWidth(180);
 }
 
 
@@ -60,8 +69,8 @@ void Dashboard::buttonGroupInit(){
 
     QPushButton *addRowBtn = new QPushButton("Add");
     QPushButton *clearPointsBtn = new QPushButton("Clear");
-    QPushButton *demoPointsBtn = new QPushButton("Demo");
-    QPushButton *formulateBtn = new QPushButton("Demo");
+    QPushButton *demoPointsBtn = new QPushButton("DemoPoints");
+    QPushButton *formulateBtn = new QPushButton("Interpolate");
     // QPushButton *exitBtn = new QPushButton("Exit");
 
     connect(addRowBtn, &QPushButton::clicked, this, &Dashboard::addRow);
@@ -69,7 +78,6 @@ void Dashboard::buttonGroupInit(){
     connect(demoPointsBtn, &QPushButton::clicked, this, &Dashboard::demoPoints);
     connect(formulateBtn, &QPushButton::clicked, this, &Dashboard::formulate);
     // connect(exitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
-
 
     layout->addWidget(addRowBtn, 0, 0);
     layout->addWidget(demoPointsBtn, 0, 1);
@@ -88,15 +96,23 @@ void Dashboard::radioGroupInit(){
 
     QRadioButton *LagrangeRadio = new QRadioButton("&Lagrange\nInterpolation");
     QRadioButton *NewtonRadio = new QRadioButton("&Newton's\nInterpolation");
+    QRadioButton *LinearRadio = new QRadioButton("&Linear\nInterpolation");
+    QRadioButton *QuadraticRadio = new QRadioButton("&Quadratic\nInterpolation");
     QRadioButton *CubicRadio = new QRadioButton("&Cubic\nInterpolation");
-    QRadioButton *QuarticRadio = new QRadioButton("&Quartic\nInterpolation");
+
+    InterpMethodRadios[LAGRANGEINDEX] = LagrangeRadio;
+    InterpMethodRadios[NEWTONINDEX] = NewtonRadio;
+    InterpMethodRadios[LINEARINDEX] = LinearRadio;
+    InterpMethodRadios[QUADRATICINDEX] = QuadraticRadio;
+    InterpMethodRadios[CUBICINDEX] = CubicRadio;
 
     LagrangeRadio->setChecked(true);
 
     layout->addWidget(LagrangeRadio, 0, 0);
     layout->addWidget(NewtonRadio, 1, 0);
-    layout->addWidget(CubicRadio, 2, 0);
-    layout->addWidget(QuarticRadio, 3, 0);
+    layout->addWidget(LinearRadio, 2, 0);
+    layout->addWidget(QuadraticRadio, 3, 0);
+    layout->addWidget(CubicRadio, 4, 0);
 
     radioGroup->setLayout(layout);
 }
@@ -183,6 +199,11 @@ void Dashboard::demoPoints(){
 }
 
 
+bool point_cmp(point point1, point point2){
+    return point1.x < point2.x;
+}
+
+
 std::vector<point> Dashboard::getPoints(){
     std::vector<point> points;
     QTableWidgetItem *x_item;
@@ -195,6 +216,8 @@ std::vector<point> Dashboard::getPoints(){
         points.push_back({x, y});
         r++;
     }
+
+    std::sort(points.begin(), points.end(), point_cmp);
     return points;
 }
 
@@ -220,37 +243,77 @@ void Dashboard::draw(){
 }
 
 
+
+std::string poly2str(Polynomial poly){
+    /*
+    std::ostringstream ss;
+    ss << Lagrange_interp_poly;
+
+    std::string polyString = ss.str();
+    std::cout << polyString << std::endl;
+    QString polyQString = QString::fromStdString(polyString);
+    qDebug() << polyQString;
+    formulaLabel->setText(polyQString);*/
+    
+    // formulaLabel->setText(QString::number(Lagrange_interp_poly.evaluate(0.596)));
+    std::string polyString("");
+    std::vector<Monomial> poly_terms = poly.terms;
+    for(auto term_it = poly_terms.begin(); term_it != poly_terms.end(); term_it++){
+        if (term_it->coef == 0.0) continue;
+        if ((term_it->coef > 0) && (term_it != poly_terms.begin()))
+            polyString += "+";
+        polyString += std::to_string(term_it->coef) + "x^" + std::to_string(term_it->exp);
+        if (term_it != poly_terms.end()) polyString += " "; 
+    }
+    return polyString;
+}
+
+
+std::string polyint2str(polyint poly_int) {
+    std::string polyString = poly2str(poly_int.poly);
+    std::string intervalString = "[" + std::to_string(poly_int.left) + "," + std::to_string(poly_int.right) + "]";
+    return polyString + " " +  intervalString + "\n";
+}
+
+
 void Dashboard::formulate(){
-    int interp_method = 0;
+    int method_index = 0;
+    interp_polyints.clear();
+
+    while (method_index < INTERPMETHODCOUNT){
+        if (InterpMethodRadios[method_index]->isChecked()){
+            break;
+        }
+        method_index++;
+    }
 
     std::vector<point> points = getPoints();
 
-    if (interp_method == 0){
-        Polynomial Lagrange_interp_poly = Lagrange_interp(points);
-        poly = Lagrange_interp_poly;
-        has_poly = true;
-        /*
-        std::ostringstream ss;
-        ss << Lagrange_interp_poly;
- 
-        std::string polyString = ss.str();
-        std::cout << polyString << std::endl;
-        QString polyQString = QString::fromStdString(polyString);
-        qDebug() << polyQString;
-        formulaLabel->setText(polyQString);*/
-        
-        std::string polyString("");
-        std::vector<Monomial> poly_terms = Lagrange_interp_poly.terms;
-        for(auto term_it = poly_terms.begin(); term_it != poly_terms.end(); term_it++){
-            if (term_it->coef == 0.0) continue;
-            if ((term_it->coef > 0) && (term_it != poly_terms.begin()))
-                polyString += "+";
-            polyString += std::to_string(term_it->coef) + "x^" + std::to_string(term_it->exp);
-            if (term_it != poly_terms.end()) polyString += " "; 
+    if (method_index == LAGRANGEINDEX || method_index == NEWTONINDEX){
+        interp_polyints.push_back({
+            method_index == LAGRANGEINDEX ? Lagrange_interp(points) : Newton_interp(points),
+            points.front().x,
+            points.back().x
+        });
+    } else {
+        int deg = method_index - 1;
+        for(int i = 0; i < points.size()-deg; i++) {
+            std::vector<point> local_points(points.begin()+i, points.begin()+i+deg+1);
+            interp_polyints.push_back({
+                Lagrange_interp(local_points),
+                points[i].x,
+                points[i+deg].x
+            });
         }
-        formulaLabel->setText(QString::fromStdString(polyString));
-        // formulaLabel->setText(QString::number(Lagrange_interp_poly.evaluate(0.596)));
     }
+
+    std::string polyintsString = "";
+    for (auto it = interp_polyints.begin(); it != interp_polyints.end(); it++){
+        polyintsString += polyint2str(*it);
+    }
+    formulaLabel->clear();
+	formulaLabel->setText(QString::fromStdString(polyintsString));
+    has_poly = true;
 }
 
 
@@ -258,12 +321,24 @@ void Dashboard::formulate(){
 void Dashboard::evaluate(){
     if (has_poly){
         double x = variableLineEdit->text().toDouble();
+        double y = 0;
         // qDebug() << variableLineEdit->text() << " ";
         // std::cout << v << std::endl;
-        double y = poly.evaluate(x);
+
+        for (auto it = interp_polyints.begin(); it != interp_polyints.end(); it++){
+        	if (it->left <= x && x <= it->right){
+        		y = it->poly.evaluate(x);
+        		break;
+        	}
+        }
+        if (x < interp_polyints.front().left) {
+            y = interp_polyints.front().poly.evaluate(x);
+        }
+        if (x > interp_polyints.back().right) {
+            y = interp_polyints.back().poly.evaluate(x);
+        }
         valueLabel->setText(QString::number(y));
     }
-
 }
 
 
@@ -273,3 +348,7 @@ void Dashboard::err(QString msg){
     msgBox.setText(msg);
     msgBox.exec();
 }
+
+
+
+
