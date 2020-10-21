@@ -14,6 +14,10 @@ const int CUBICINDEX = 4;
 const int INTERPMETHODCOUNT = 5;
 
 
+double max(double num1, double num2){
+    return num1 > num2 ? num1 : num2;
+}
+
 
 void Dashboard::chartInit(){
     QChart *chart = new QChart();
@@ -22,23 +26,22 @@ void Dashboard::chartInit(){
     // chart->axes(Qt::Horizontal).first()->setRange(0, 20);
     // chart->axes(Qt::Vertical).first()->setRange(0, 10);
 
-
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
-    QValueAxis *axisX = new QValueAxis();
-    QValueAxis *axisY = new QValueAxis();
+    axisX = new QValueAxis();
+    axisY = new QValueAxis();
 
-    axisX->setTickCount(10);
-    axisY->setTickCount(10);
+    // axisX->setTickCount(10);
+    // axisY->setTickCount(10);
 
     chartView->chart()->addAxis(axisX, Qt::AlignBottom);
     chartView->chart()->addAxis(axisY, Qt::AlignLeft);
 
-    QScatterSeries *series0 = new QScatterSeries();
-    chartView->chart()->addSeries(series0);
-    series0->attachAxis(axisX);
-    series0->attachAxis(axisY);
+    // QScatterSeries *series0 = new QScatterSeries();
+    // chartView->chart()->addSeries(series0);
+    // series0->attachAxis(axisX);
+    // series0->attachAxis(axisY);
 }
 
 
@@ -223,21 +226,60 @@ std::vector<point> Dashboard::getPoints(){
 
 
 void Dashboard::draw(){
-	QScatterSeries *series0 = new QScatterSeries();
-	series0->setName("points");
+    chartView->chart()->removeAllSeries();
+    chartView->chart()->removeAxis(axisX);
+    chartView->chart()->removeAxis(axisY);
 
-	series0->setMarkerSize(10);
-    series0->setColor(QColor(0, 0, 0, 255));
+
+	QScatterSeries *pointsSeries = new QScatterSeries();
+
+	pointsSeries->setMarkerSize(10);
+    pointsSeries->setColor(QColor(0, 0, 0, 255));
 
     std::vector<point> points = getPoints();
     for (auto it = points.begin(); it != points.end(); it++){
-        series0->append(it->x, it->y);
+        pointsSeries->append(it->x, it->y);
     }
 
-	chartView->chart()->addSeries(series0);
+    QLineSeries *curveSeries = new QLineSeries();
 
-    // series0->attachAxis(axisX);
-    // series0->attachAxis(axisY);
+    double y_max = points.front().y;
+    double y_min = points.front().y;
+    for (auto it = interp_polyints.begin(); it != interp_polyints.end(); it++){
+        double left_;
+        if (it == interp_polyints.begin()) {
+            left_ = it->left;
+        } else {
+            left_ = max(it->left, (it-1)->right);
+        }
+
+        double step = (it->right - left_) / 10000;
+        for (double x = left_; x <= it->right; x += step){
+            double y = it->poly.evaluate(x);
+            if (y > y_max) y_max = y;
+            if (y < y_min) y_min = y;
+            curveSeries->append(x, y);
+        }
+    }
+
+    axisX = new QValueAxis();
+    axisY = new QValueAxis();
+
+    axisX->setRange(interp_polyints.front().left, interp_polyints.back().right);
+    axisY->setRange(y_min, y_max);
+    axisX->setTickCount(10);
+    axisY->setTickCount(10);
+
+    chartView->chart()->addAxis(axisX, Qt::AlignBottom);
+    chartView->chart()->addAxis(axisY, Qt::AlignLeft);
+
+    chartView->chart()->legend();
+	chartView->chart()->addSeries(pointsSeries);
+    chartView->chart()->addSeries(curveSeries);
+    pointsSeries->attachAxis(axisX);
+    pointsSeries->attachAxis(axisY);
+    curveSeries->attachAxis(axisX);
+    curveSeries->attachAxis(axisY);
 
 	chartView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 }
@@ -314,6 +356,8 @@ void Dashboard::formulate(){
     formulaLabel->clear();
 	formulaLabel->setText(QString::fromStdString(polyintsString));
     has_poly = true;
+
+    draw();
 }
 
 

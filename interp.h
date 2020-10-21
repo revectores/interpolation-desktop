@@ -27,6 +27,8 @@ typedef struct polyint_ {
 class Dashboard : public QWidget {
 private:
 	QChartView* chartView;
+	QValueAxis* axisX;
+	QValueAxis* axisY;
 	QLabel* formulaLabel;
 	QTableWidget* pointsTable;
 	QGroupBox* buttonGroup;
