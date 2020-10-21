@@ -159,7 +159,8 @@ void Dashboard::draw(){
 	QScatterSeries *series0 = new QScatterSeries();
 	series0->setName("points");
 
-	series0->setMarkerSize(5);
+	series0->setMarkerSize(10);
+    series0->setColor(QColor(0, 0, 0, 255));
 
 	for (int r = 0; r < 6; r ++){
 		series0->append(pointsTable->item(r, 0)->text().toDouble(),

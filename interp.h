@@ -41,6 +41,7 @@ private:
 	void clearPoints();
 	void demoPoints();
 	void draw();
+	void preprocessor();
 
 	void cellChangeHandler();
 
