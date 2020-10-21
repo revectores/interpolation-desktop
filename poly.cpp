@@ -16,6 +16,14 @@ Monomial Monomial::operator* (Monomial const &m){
 }
 
 std::ostream& operator<< (std::ostream& os, const Monomial &m){
+	if (m.coef == 0){
+		return os;
+	}
+
+	if (m.coef > 0) {
+		os << "+";
+	}
+
 	os << std::setprecision(10) << std::fixed << m.coef << "x^" << m.exp;
     return os;
 }
@@ -69,7 +77,7 @@ Polynomial Polynomial::operator* (Polynomial const &p) {
 
 std::ostream& operator<< (std::ostream& os, const Polynomial &p){
 	for (auto it = p.terms.begin(); it != p.terms.end(); it++){
-		std::cout << " +" << (*it);
+		std::cout << *it << " ";
 	}
     return os;
 }
@@ -102,9 +110,9 @@ Polynomial Newton_interp(std::vector<point> points) {
 
 	int n = points.size();
 	for (int k=1; k <= n; k++){
-		long double diff = 0;
+		double diff = 0;
 		for (int i=0; i < k; i++){
-			long double denominator = 1;
+			double denominator = 1;
 			for (int j=0; j < k; j++){
 				if (i==j) continue;
 				denominator *= (points[i].x - points[j].x);
@@ -126,17 +134,15 @@ Polynomial Newton_interp(std::vector<point> points) {
 
 
 
+/*
 int main(){
-	/*
 	Monomial a = Monomial(1, 3);
 	Monomial b = Monomial(2, 5);
 	Polynomial p1(std::vector<Monomial> {a, b});
 	Polynomial p2(std::vector<Monomial> {b, a});
 	std::cout << p1 * p2 << std::endl; // (x^3 + 2x^5)^2 = 4x^10 + 4x^8 + x^6
-	*/
 
 	// std::vector<point> points {{0, 1}, {1, 0}};
-	/*
 	std::vector<point> points {
 		{0.4, 0.41075},
 		{0.55, 0.57815},
@@ -144,7 +150,7 @@ int main(){
 		{0.80, 0.90},
 		{0.95, 1.00},
 		{1.05, 1.25382}
-	};*/
+	};
 
 	std::vector<point> points {
 		{1, 0.368},
@@ -162,5 +168,4 @@ int main(){
 	// Polynomial a = Polynomial(std::vector<Monomial> {{1, 0}, {0, 1}});
 	// std::cout << a * a << std::endl;
 }
-
-
+*/

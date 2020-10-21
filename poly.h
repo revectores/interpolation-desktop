@@ -1,3 +1,4 @@
+#include "type.h"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -5,20 +6,14 @@
 #include <iomanip>
 
 
-typedef struct _point {
-	long double x;
-	long double y;
-} point;
-
-
 class Monomial {
 public:
-	long double coef;
+	double coef;
 	int exp;
 
 	Monomial() {coef=0; exp=0;}
-	Monomial(long double _coef) {coef=_coef; exp=0;}
-	Monomial(long double _coef, int _exp){coef=_coef; exp=_exp;}
+	Monomial(double _coef) {coef=_coef; exp=0;}
+	Monomial(double _coef, int _exp){coef=_coef; exp=_exp;}
 	~Monomial(){};
 
 	Monomial operator+ (Monomial const &m);

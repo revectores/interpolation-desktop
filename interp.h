@@ -1,3 +1,4 @@
+#include "poly.h"
 #include <QApplication>
 #include <QWidget>
 #include <QGridLayout>
@@ -14,13 +15,6 @@
 #define MAXIMUM_ROW 1000
 
 
-
-typedef struct point {
-	double x;
-	double y;
-} point;
-
-
 class Dashboard : public QWidget {
 private:
 	QChartView* chartView;
@@ -29,8 +23,7 @@ private:
 	QGroupBox* buttonGroup;
 	QGroupBox* radioGroup;
 
-	point points[MAXIMUM_ROW];
-
+	std::vector<point> getPoints();
 	void chartInit();
 	void formulaInit();
 	void pointsTableInit();
@@ -41,7 +34,7 @@ private:
 	void clearPoints();
 	void demoPoints();
 	void draw();
-	void preprocessor();
+	void formulate();
 
 	void cellChangeHandler();
 

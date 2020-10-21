@@ -1,7 +1,9 @@
 #include <string>
+#include <sstream>
+#include <QDebug>
+#include <QString>
 
 #include "interp.h"
-
 
 
 void Dashboard::chartInit(){
@@ -47,8 +49,6 @@ void Dashboard::pointsTableInit(){
     pointsTable->setHorizontalHeaderItem(1, new QTableWidgetItem("y"));
 
     pointsTable->setFixedWidth(144);
-
-    connect(pointsTable, &QTableWidget::cellChanged, this, &Dashboard::cellChangeHandler); 
 }
 
 
@@ -61,20 +61,20 @@ void Dashboard::buttonGroupInit(){
     QPushButton *addRowBtn = new QPushButton("Add");
     QPushButton *clearPointsBtn = new QPushButton("Clear");
     QPushButton *demoPointsBtn = new QPushButton("Demo");
-    QPushButton *drawBtn = new QPushButton("Demo");
+    QPushButton *formulateBtn = new QPushButton("Demo");
     // QPushButton *exitBtn = new QPushButton("Exit");
 
     connect(addRowBtn, &QPushButton::clicked, this, &Dashboard::addRow);
     connect(clearPointsBtn, &QPushButton::clicked, this, &Dashboard::clearPoints);
     connect(demoPointsBtn, &QPushButton::clicked, this, &Dashboard::demoPoints);
-    connect(drawBtn, &QPushButton::clicked, this, &Dashboard::draw);
+    connect(formulateBtn, &QPushButton::clicked, this, &Dashboard::formulate);
     // connect(exitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
 
 
     layout->addWidget(addRowBtn, 0, 0);
     layout->addWidget(demoPointsBtn, 0, 1);
     layout->addWidget(clearPointsBtn, 1, 0);
-    layout->addWidget(drawBtn, 1, 1);
+    layout->addWidget(formulateBtn, 1, 1);
 
     buttonGroup->setLayout(layout);
 }
@@ -139,19 +139,19 @@ void Dashboard::demoPoints(){
 }
 
 
-void Dashboard::cellChangeHandler(){
-    /*
-    QMessageBox msgBox;
-
-    msgBox.setText("found u!");
-    msgBox.exec();
-    */
-}
-
-
-void Dashboard::preprocessor(){
-
-
+std::vector<point> Dashboard::getPoints(){
+    std::vector<point> points;
+    QTableWidgetItem *x_item;
+    QTableWidgetItem *y_item;
+    int r = 0;
+    while(((x_item = pointsTable->item(r, 0)) && (y_item = pointsTable->item(r, 1)))) {
+        if ( x_item->text().isEmpty() || y_item->text().isEmpty()) break;
+        double x = x_item->text().toDouble();
+        double y = y_item->text().toDouble();
+        points.push_back({x, y});
+        r++;
+    }
+    return points;
 }
 
 
@@ -162,10 +162,10 @@ void Dashboard::draw(){
 	series0->setMarkerSize(10);
     series0->setColor(QColor(0, 0, 0, 255));
 
-	for (int r = 0; r < 6; r ++){
-		series0->append(pointsTable->item(r, 0)->text().toDouble(),
-					    pointsTable->item(r, 1)->text().toDouble());
-	}
+    std::vector<point> points = getPoints();
+    for (auto it = points.begin(); it != points.end(); it++){
+        series0->append(it->x, it->y);
+    }
 
 	chartView->chart()->addSeries(series0);
 
@@ -174,6 +174,39 @@ void Dashboard::draw(){
 
 	chartView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 }
+
+
+void Dashboard::formulate(){
+    int interp_method = 0;
+
+    std::vector<point> points = getPoints();
+
+    if (interp_method == 0){
+        Polynomial Lagrange_interp_poly = Lagrange_interp(points);
+        /*
+        std::ostringstream ss;
+        ss << Lagrange_interp_poly;
+ 
+        std::string polyString = ss.str();
+        std::cout << polyString << std::endl;
+        QString polyQString = QString::fromStdString(polyString);
+        qDebug() << polyQString;
+        formulaLabel->setText(polyQString);*/
+        
+        std::string polyString("");
+        std::vector<Monomial> poly_terms = Lagrange_interp_poly.terms;
+        for(auto term_it = poly_terms.begin(); term_it != poly_terms.end(); term_it++){
+            if (term_it->coef == 0.0) continue;
+            if ((term_it->coef > 0) && (term_it != poly_terms.begin()))
+                polyString += "+";
+            polyString += std::to_string(term_it->coef) + "x^" + std::to_string(term_it->exp);
+            if (term_it != poly_terms.end()) polyString += " "; 
+        }
+        formulaLabel->setText(QString::fromStdString(polyString));
+    }
+}
+
+
 
 
 void Dashboard::err(QString msg){
