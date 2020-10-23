@@ -8,7 +8,7 @@ bool term_cmp(Monomial term1, Monomial term2){
 
 
 Monomial Monomial::operator+ (Monomial const &m){
-	assert(exp == m.exp);
+	// assert(exp == m.exp);
     return Monomial(coef + m.coef, exp);
 }
 
@@ -101,7 +101,7 @@ Polynomial Lagrange_interp(std::vector<point> points) {
 		Polynomial product {std::vector<Monomial> {1, 0}};
 		for (int i=0; i < n; i++){
 			if (i == k) continue;
-			Polynomial term {std::vector<Monomial> {{1, 1}, {-points[i].x, 0}}};
+			Polynomial term {{{1, 1}, {-points[i].x, 0}}};
 			term = term * (1.0 / (points[k].x - points[i].x));
 			// std::cout << "k=" << k << "i=" << i << "term=" << term << std::endl;
 			product = product * term;
@@ -111,6 +111,7 @@ Polynomial Lagrange_interp(std::vector<point> points) {
 		Lagrange_interp_polynomial = Lagrange_interp_polynomial + product;
 	}
 
+	Lagrange_interp_polynomial.sort();
 	return Lagrange_interp_polynomial;
 }
 
@@ -132,13 +133,14 @@ Polynomial Newton_interp(std::vector<point> points) {
 
 		Polynomial prod {std::vector<Monomial> {1, 0}};
 		for (int j=0; j<k-1; j++){
-			Polynomial term {std::vector<Monomial> {{1, 1}, {-points[j].x, 0}}};
+			Polynomial term {{{1, 1}, {-points[j].x, 0}}};
 			prod = prod * term;
 		}
 
 		Newton_interp_polynomial = Newton_interp_polynomial + prod * diff;
 	}
 
+	Newton_interp_polynomial.sort();
 	return Newton_interp_polynomial;
 }
 

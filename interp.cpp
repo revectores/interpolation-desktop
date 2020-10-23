@@ -168,10 +168,6 @@ Dashboard::Dashboard(QWidget *parent) : QWidget(parent) {
 
 
 void Dashboard::addRow() {
-    if (pointsTable->rowCount() >= MAXIMUM_ROW) {
-        err("Exceed maximum rows");
-        return;
-    }
     pointsTable->insertRow(pointsTable->rowCount());
 }
 
@@ -281,7 +277,7 @@ void Dashboard::draw(){
     curveSeries->attachAxis(axisX);
     curveSeries->attachAxis(axisY);
 
-	chartView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
+	// chartView->chart()->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 }
 
 
@@ -353,6 +349,7 @@ void Dashboard::formulate(){
     for (auto it = interp_polyints.begin(); it != interp_polyints.end(); it++){
         polyintsString += polyint2str(*it);
     }
+    std::cout << polyintsString << std::endl;
     formulaLabel->clear();
 	formulaLabel->setText(QString::fromStdString(polyintsString));
     has_poly = true;

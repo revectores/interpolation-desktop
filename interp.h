@@ -12,8 +12,6 @@
 #include <QtCharts>
 
 #include <QMessageBox>
-#define MAXIMUM_ROW 1000
-
 
 
 typedef struct polyint_ {
