@@ -1,4 +1,3 @@
-#include "poly.h"
 #include <QApplication>
 #include <QWidget>
 #include <QGridLayout>
@@ -12,6 +11,7 @@
 #include <QtCharts>
 
 #include <QMessageBox>
+#include <revector/poly.h>
 
 
 typedef struct polyint_ {

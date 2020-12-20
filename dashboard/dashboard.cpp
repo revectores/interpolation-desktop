@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QString>
 
-#include "interp.h"
+#include "dashboard.h"
 
 
 const int LAGRANGEINDEX = 0;

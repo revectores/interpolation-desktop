@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "interp.h"
+#include "dashboard.h"
 
 int main(int argc, char *argv[]){
 
